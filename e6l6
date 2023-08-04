@@ -1,0 +1,49 @@
+.data
+	um: .double 1
+	dois: .double 2
+	newline: .asciiz "\n"
+.text
+	li $v0, 7 # Comando para lêr double
+	syscall # $f0 está com x
+	
+	jal square_root # Chama a função
+	
+	sqrt.d $f12, $f0 # $f12 recebe a sqrt(x) (do mips)
+	
+	sub.d $f12, $f12, $f2 # Calculca valor exato - aproximação (Erro)
+	abs.d $f12, $f12 # Pega o valor absoluto disso (Erro absoluto)
+	li $v0, 3 # Comando para printar double
+	syscall # Printa o erro em valor absoluto
+	
+	li $v0, 4 # Comando para printar uma string
+	la $a0, newline
+	syscall 
+	
+	sqrt.d $f12, $f0 # $f12 recebe a sqrt(x) (do mips)
+	li $v0, 3 # Comando para printar double
+	syscall # Printa a sqrt(x) (do mips)
+	
+	li $v0, 4 # Comando para printar uma string
+	la $a0, newline
+	syscall 
+	
+	li $v0, 3 # Comando para printar double
+	mov.d $f12, $f2 # Move a guess ($f2) para $f12 para ser printada
+	syscall # Printa a guess do método iterativo de newton
+	
+	 
+	j exit
+square_root:
+	li $t0, 0 # Inicializa o contador de loop em 0	
+	l.d $f2, um # $f2 guarda a guess, inicializa $f2 em 1
+	l.d $f6, dois # $f6 guarda a constante 2
+loop:
+	addi $t0, $t0, 1 # Incrementa o contador de loop
+	div.d $f4, $f0, $f2 # $f4 recebe x/guess
+	add.d $f4, $f4, $f2 # $f4 recebe (x/guess) + guess
+	div.d $f2, $f4, $f6 # guess($f2) = ((x/guess) + guess)/2
+	bne $t0, 21, loop # Se não for igual a 21, faz o loop novamente (20 vezes ao todo)
+	jr $ra # Saindo do loop, volta pro chamador da função
+	
+	
+exit:

@@ -1,0 +1,31 @@
+.text
+	
+	li $s0, 0x10010020 # Endereço base dos dados
+main:	
+	li $v0, 5 # Comando para ler inteiro
+	syscall # Lê inteiro
+	move $s1, $v0 # Move o valor lido para o registrador $s1 (ligar ou desligar)
+	
+	li $v0, 5 # Comando para ler inteiro
+	syscall
+	move $s2, $v0 # Move o valor lido para o registrador $s2 (índice do bit)
+	
+	# Calcula o incremento/decremento do dado (2^índice do bit)
+	li $s3, 1 # máscara	
+	sllv $s3, $s3, $s2 # Multiplica a máscara por 2^índice do bit (deslocamento à esquerda)
+	lw $s5, 0($s0) # Carrega o dado do endereço base
+	bne $s1, 1, desligar # Se não for para ligar, vai para desligar
+ligar:
+	or $s5, $s5, $s3 # Aplica a máscara para ligar o bit
+	j fim # Se for pra ligar vai direto pro fim
+desligar:
+	not $s3, $s3 # Inverte a máscara
+	and $s5, $s5, $s3 # Aplica a máscara invertida para desligar o bit
+	j fim # Se for pra desligar, multiplica a potencia por -1 e depois vai pro fim
+
+fim:
+	sw $s5, 0($s0) # Guarda o dado na memória
+	
+	j main # Volta pro main pra rodar o programa em loop
+	 
+	 
